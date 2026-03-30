@@ -1,7 +1,12 @@
 package auth
 
 import (
+	"errors"
+	dto "expense/internal/dto/auth"
+	"expense/internal/entity"
 	"expense/internal/repository"
+
+	"github.com/google/uuid"
 )
 
 type RegisterUseCase struct {
@@ -10,4 +15,20 @@ type RegisterUseCase struct {
 
 func NewRegisterUseCase(userRep repository.UserRepository) *RegisterUseCase {
 	return &RegisterUseCase{userRep}
+}
+
+func (u *RegisterUseCase) Excute(input dto.RegisterRequest) error {
+	userEntity, err := entity.NewUser(uuid.NewString(), input.Name, input.Email, "VND")
+	if err != nil {
+		return err
+	}
+	if err := userEntity.SetPassword(input.Password); err != nil {
+		return err
+	}
+
+	user, err := u.userRep.FindUserByEmail(input.Email)
+	if err == nil && user != nil {
+		return errors.New("Email already exits")
+	}
+	return nil
 }

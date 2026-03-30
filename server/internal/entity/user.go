@@ -4,6 +4,8 @@ import (
 	"errors"
 	"regexp"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -56,5 +58,25 @@ func (u *User) validateEmail() error {
 		return errors.New("invalid email format")
 	}
 
+	return nil
+}
+
+func (u *User) SetPassword(plainPassword string) error {
+	if len(plainPassword) < 6 {
+		return errors.New("Password must be at least 6 characters")
+	}
+	hashPw, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	u.PasswordHash = string(hashPw)
+	return nil
+}
+
+func (u *User) ComparePassword(plainPassword string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(plainPassword)); err != nil {
+		return err
+	}
 	return nil
 }
