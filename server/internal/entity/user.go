@@ -13,19 +13,19 @@ type User struct {
 	Name         string
 	Email        string
 	PasswordHash string
-	BaseCurrency string
+	Currency     string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
 
-func NewUser(id, name, email, baseCurrency string) (*User, error) {
+func NewUser(id, name, email, currency string) (*User, error) {
 	user := &User{
-		ID:           id,
-		Name:         name,
-		Email:        email,
-		BaseCurrency: baseCurrency,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		ID:        id,
+		Name:      name,
+		Email:     email,
+		Currency:  currency,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	if err := user.Validate(); err != nil {
 		return nil, err

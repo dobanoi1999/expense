@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TYPE IF EXISTS category_type CASCADE;

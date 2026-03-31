@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TYPE IF EXISTS notification_type CASCADE;

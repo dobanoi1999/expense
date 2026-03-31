@@ -16,6 +16,18 @@ func NewAuthHandler(registerUC *authUseCase.RegisterUseCase) *AuthHandler {
 	return &AuthHandler{registerUC}
 }
 
+// Register godoc
+//
+//	@Summary		Đăng ký tài khoản
+//	@Description	Tạo mới người dùng với email, password
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.RegisterRequest	true	"Thông tin đăng ký"
+//	@Success		201		{object}	model.User
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

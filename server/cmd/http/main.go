@@ -2,6 +2,7 @@ package main
 
 import (
 	"expense/configs"
+	_ "expense/docs"
 	"expense/internal/router"
 	"expense/pkg/database"
 	"fmt"
@@ -20,7 +21,7 @@ import (
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@host		localhost:9000
+//	@host		localhost:8080
 //	@BasePath	/api
 
 //	@securityDefinitions.apikey	BearerAuth
