@@ -18,7 +18,7 @@ func NewRegisterUseCase(userRep repository.UserRepository) *RegisterUseCase {
 }
 
 func (u *RegisterUseCase) Excute(input dto.RegisterRequest) error {
-	userEntity, err := entity.NewUser(uuid.NewString(), input.Name, input.Email, "VND")
+	userEntity, err := entity.NewUser(uuid.NewString(), input.Name, input.Email, "VND", "")
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,10 @@ func (u *RegisterUseCase) Excute(input dto.RegisterRequest) error {
 
 	user, err := u.userRep.FindUserByEmail(input.Email)
 	if err == nil && user != nil {
-		return errors.New("Email already exits")
+		return errors.New("email already exits")
+	}
+	if err := u.userRep.CreateUser(userEntity); err != nil {
+		return err
 	}
 	return nil
 }

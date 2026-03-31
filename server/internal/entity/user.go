@@ -13,17 +13,19 @@ type User struct {
 	Name         string
 	Email        string
 	PasswordHash string
+	AvatarUrl    string
 	Currency     string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
 
-func NewUser(id, name, email, currency string) (*User, error) {
+func NewUser(id, name, email, currency string, avatarUrl string) (*User, error) {
 	user := &User{
 		ID:        id,
 		Name:      name,
 		Email:     email,
 		Currency:  currency,
+		AvatarUrl: avatarUrl,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
