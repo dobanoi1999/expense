@@ -21,6 +21,19 @@ type UserResponse struct {
 	Currency  string    `json:"currency"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type TokenResponse struct {
+	RefreshToken string `json:"refresh_token"`
+	Token        string `json:"token"`
+	ExpiresIn    int64  `json:"expires_in"`
+	TokenType    string `json:"token_type"`
+}
+
+type LoginResponse struct {
+	Tokens TokenResponse `json:"tokens"`
+	User   UserResponse  `json:"user"`
+}
+
 type MesssageResponse struct {
 	Message string `json:"message"`
 }

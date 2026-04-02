@@ -14,6 +14,7 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	ServerPort string
+	JwtSecret  string
 }
 
 func LoadConfig() (*Config, error) {
@@ -28,6 +29,7 @@ func LoadConfig() (*Config, error) {
 		DBName:     getEnv("DB_NAME", "expense"),
 		DBPassword: getEnv("DB_PASSWORD", "root"),
 		ServerPort: getEnv("PORT", "8080"),
+		JwtSecret:  getEnv("JWT_SECRET", "jwt-sescret"),
 	}, nil
 }
 

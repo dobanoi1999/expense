@@ -10,10 +10,11 @@ import (
 
 type AuthHandler struct {
 	registerUC *authUseCase.RegisterUseCase
+	loginUC    *authUseCase.LoginUseCase
 }
 
-func NewAuthHandler(registerUC *authUseCase.RegisterUseCase) *AuthHandler {
-	return &AuthHandler{registerUC}
+func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCase.LoginUseCase) *AuthHandler {
+	return &AuthHandler{registerUC, loginUC}
 }
 
 // Register godoc
@@ -24,9 +25,9 @@ func NewAuthHandler(registerUC *authUseCase.RegisterUseCase) *AuthHandler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.RegisterRequest	true	"Thông tin đăng ký"
-//	@Success		201		{object}	model.User
-//	@Failure		400		{object}	map[string]string
-//	@Failure		500		{object}	map[string]string
+//	@Success		201		{object}	response.Response{data=dto.MesssageResponse}
+//	@Failure		400		{object}	response.Response
+//	@Failure		500		{object}	response.Response
 //	@Router			/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input dto.RegisterRequest
@@ -42,6 +43,37 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	response.ResponseSuccess(w, http.StatusCreated, dto.MesssageResponse{
 		Message: "user registed sucessfully",
+	})
+
+}
+
+// Login godoc
+//
+//	@Summary		Đăng nhập
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.LoginRequest	true	"Thông tin đăng nhập"
+//	@Success		201		{object}	response.Response{data=dto.LoginResponse}
+//	@Failure		400		{object}	response.Response
+//	@Failure		500		{object}	response.Response
+//	@Router			/auth/login [post]
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var input dto.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userResponse, tokenResponse, err := h.loginUC.Excute(input)
+	if err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.ResponseSuccess(w, http.StatusCreated, dto.LoginResponse{
+		Tokens: tokenResponse,
+		User:   userResponse,
 	})
 
 }

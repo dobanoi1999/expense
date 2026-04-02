@@ -43,6 +43,9 @@ func (r *GormUserRepository) FindUserByEmail(email string) (*entity.User, error)
 		Name:         user.DisplayName,
 		PasswordHash: user.PasswordHash,
 		Currency:     user.Currency,
+		Email:        user.Email,
+		AvatarUrl:    user.AvatarUrl,
 		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	_ "expense/docs"
 	"expense/internal/router"
 	"expense/pkg/database"
+	security "expense/pkg/scurity"
 	"fmt"
 	"log"
 	"net/http"
@@ -42,10 +43,12 @@ func main() {
 		pgsqlDB.Close()
 	}()
 
+	tokenService := security.NewTokenService(cfg.JwtSecret)
+
 	mainRouter := mux.NewRouter()
 	mainRouter.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
-	router.SetupAllRoutes(mainRouter, database.DB)
+	router.SetupAllRoutes(mainRouter, database.DB, tokenService)
 
 	addr := fmt.Sprintf(":%v", cfg.ServerPort)
 	log.Printf("🚀 Server starting on %s", addr)
