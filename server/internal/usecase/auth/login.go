@@ -38,20 +38,34 @@ func (u *LoginUseCase) Excute(loginRequest dto.LoginRequest) (dto.UserResponse, 
 		return userResponse, TokenResponse, err
 	}
 
-	refreshToken, err := u.tokenService.GenerateFreshToken(user.ID)
-	if err != nil {
-		return userResponse, TokenResponse, err
-	}
+	var refreshToken string
+	dbToken, err := u.refreshTokenRepo.FindTokenByUserID(user.ID)
 
-	tokenEntity := entity.RefreshToken{
-		ID:        uuid.NewString(),
-		UserID:    user.ID,
-		TokenHash: refreshToken,
-		ExpiresAt: time.Now().AddDate(0, 0, 7),
-	}
+	if err != nil && dbToken == nil {
+		refreshToken, err = u.createNewRefreshToken(user.ID)
+		if err != nil {
+			return userResponse, TokenResponse, err
+		}
+	} else if dbToken.IsExpired() || dbToken.Revoked {
+		refreshToken, err = u.tokenService.GenerateFreshToken(user.ID)
+		if err != nil {
+			return userResponse, TokenResponse, err
+		}
 
-	if err := u.refreshTokenRepo.Create(tokenEntity); err != nil {
-		return userResponse, TokenResponse, err
+		tokenEntity := entity.RefreshToken{
+			ID:        dbToken.ID,
+			UserID:    dbToken.UserID,
+			TokenHash: refreshToken,
+			ExpiresAt: time.Now().Add(time.Hour * 1),
+			Revoked:   false,
+		}
+
+		if err := u.refreshTokenRepo.UpdateTokenByID(tokenEntity); err != nil {
+			return userResponse, TokenResponse, err
+		}
+
+	} else {
+		refreshToken = dbToken.TokenHash
 	}
 
 	userResponse = dto.UserResponse{
@@ -71,4 +85,23 @@ func (u *LoginUseCase) Excute(loginRequest dto.LoginRequest) (dto.UserResponse, 
 	}
 
 	return userResponse, TokenResponse, nil
+}
+
+func (u *LoginUseCase) createNewRefreshToken(userId string) (string, error) {
+	refreshToken, err := u.tokenService.GenerateFreshToken(userId)
+	if err != nil {
+		return "", err
+	}
+
+	tokenEntity := entity.RefreshToken{
+		ID:        uuid.NewString(),
+		UserID:    userId,
+		TokenHash: refreshToken,
+		ExpiresAt: time.Now().Add(time.Hour * 1),
+	}
+
+	if err := u.refreshTokenRepo.Create(tokenEntity); err != nil {
+		return "", err
+	}
+	return refreshToken, nil
 }

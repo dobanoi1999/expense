@@ -46,3 +46,40 @@ func (rt *GormRefreshTokenRepository) FindByToken(token string) (*entity.Refresh
 		Revoked:   dbToken.Revoked,
 	}, nil
 }
+
+func (rt *GormRefreshTokenRepository) FindTokenByUserID(userID string) (*entity.RefreshToken, error) {
+	var dbToken model.RefreshToken
+	if err := rt.db.Where("user_id = ?", userID).First(&dbToken).Error; err != nil {
+		return nil, err
+	}
+
+	return &entity.RefreshToken{
+		ID:        dbToken.ID,
+		UserID:    dbToken.UserID,
+		TokenHash: dbToken.TokenHash,
+		ExpiresAt: dbToken.ExpiresAt,
+		Revoked:   dbToken.Revoked,
+	}, nil
+}
+
+func (rt *GormRefreshTokenRepository) RemoveToken(id string) error {
+	if err := rt.db.Where("id=?", id).Delete(&model.RefreshToken{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rt *GormRefreshTokenRepository) UpdateTokenByID(tokenUpdate entity.RefreshToken) error {
+	dbToken := &model.RefreshToken{
+		UserID:    tokenUpdate.UserID,
+		TokenHash: tokenUpdate.TokenHash,
+		ExpiresAt: tokenUpdate.ExpiresAt,
+		Revoked:   tokenUpdate.Revoked,
+	}
+
+	if err := rt.db.Where("id=?", tokenUpdate.ID).Updates(dbToken).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
