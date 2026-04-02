@@ -17,12 +17,17 @@ func setupAuthRoutes(mux *mux.Router, db *gorm.DB, tokenService *security.TokenS
 
 	registerUC := authUseCase.NewRegisterUseCase(userRepo)
 	loginUC := authUseCase.NewLoginUseCase(userRepo, refreshRepo, tokenService)
+	refreshTokenUC := authUseCase.NewRefreshTokenUseCase(tokenService, refreshRepo)
 
-	authHandler := handler.NewAuthHandler(registerUC, loginUC)
+	authHandler := handler.NewAuthHandler(registerUC, loginUC, refreshTokenUC)
 
 	authRouter := mux.PathPrefix("/api/auth").Subrouter()
 	authRouter.HandleFunc("/register", authHandler.Register).Methods(http.MethodPost)
 	authRouter.HandleFunc("/login", authHandler.Login).Methods(http.MethodPost)
+	authRouter.HandleFunc("/refresh", authHandler.RefreshToken).Methods(http.MethodPost)
+
+	// authMiddleware := middleware.AuthMiddleware(tokenService)
+	// authRouter.Use(authMiddleware)
 }
 
 func SetupAllRoutes(mux *mux.Router, db *gorm.DB, tokenService *security.TokenService) {

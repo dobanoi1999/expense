@@ -9,12 +9,13 @@ import (
 )
 
 type AuthHandler struct {
-	registerUC *authUseCase.RegisterUseCase
-	loginUC    *authUseCase.LoginUseCase
+	registerUC     *authUseCase.RegisterUseCase
+	loginUC        *authUseCase.LoginUseCase
+	refreshTokenUC *authUseCase.RefreshTokenUseCase
 }
 
-func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCase.LoginUseCase) *AuthHandler {
-	return &AuthHandler{registerUC, loginUC}
+func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCase.LoginUseCase, refreshTokenUC *authUseCase.RefreshTokenUseCase) *AuthHandler {
+	return &AuthHandler{registerUC, loginUC, refreshTokenUC}
 }
 
 // Register godoc
@@ -76,4 +77,32 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		User:   userResponse,
 	})
 
+}
+
+// RefreshToken godoc
+//
+//	@Summary		Get access token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.RefreshTokenRequest	true	"create access token"
+//	@Success		201		{object}	response.Response{data=dto.TokenResponse}
+//	@Failure		400		{object}	response.Response
+//	@Failure		500		{object}	response.Response
+//	@Router			/auth/refresh [post]
+func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var request dto.RefreshTokenRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenReponse, err := h.refreshTokenUC.Excute(request)
+	if err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.ResponseSuccess(w, http.StatusCreated, tokenReponse)
 }

@@ -37,3 +37,7 @@ type LoginResponse struct {
 type MesssageResponse struct {
 	Message string `json:"message"`
 }
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}

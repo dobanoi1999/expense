@@ -1,6 +1,7 @@
 package security
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -49,4 +50,29 @@ func (ts *TokenService) ParseToken(tokenString string) (jwt.MapClaims, error) {
 	}
 
 	return nil, jwt.NewValidationError("invalid token", jwt.ValidationErrorClaimsInvalid)
+}
+
+func (ts *TokenService) VerifyToken(tokenString string) (map[string]any, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(ts.jwtSecret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	exp, ok := claims["exp"].(float64)
+	if !ok || time.Now().Unix() > int64(exp) {
+		return nil, errors.New("token expired")
+	}
+
+	return claims, nil
 }

@@ -34,7 +34,7 @@ func (rt *GormRefreshTokenRepository) Create(token entity.RefreshToken) error {
 func (rt *GormRefreshTokenRepository) FindByToken(token string) (*entity.RefreshToken, error) {
 	var dbToken model.RefreshToken
 
-	if err := rt.db.Where("token= ?", token).First(&dbToken).Error; err != nil {
+	if err := rt.db.Where("token_hash= ?", token).First(&dbToken).Error; err != nil {
 		return nil, err
 	}
 
