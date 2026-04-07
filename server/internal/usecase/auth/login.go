@@ -56,7 +56,7 @@ func (u *LoginUseCase) Excute(loginRequest dto.LoginRequest) (dto.UserResponse, 
 			ID:        dbToken.ID,
 			UserID:    dbToken.UserID,
 			TokenHash: refreshToken,
-			ExpiresAt: time.Now().Add(time.Hour * 1),
+			ExpiresAt: time.Now().AddDate(0, 0, 7),
 			Revoked:   false,
 		}
 

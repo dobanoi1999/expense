@@ -12,10 +12,11 @@ type AuthHandler struct {
 	registerUC     *authUseCase.RegisterUseCase
 	loginUC        *authUseCase.LoginUseCase
 	refreshTokenUC *authUseCase.RefreshTokenUseCase
+	logoutUseCase  *authUseCase.LogoutUseCase
 }
 
-func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCase.LoginUseCase, refreshTokenUC *authUseCase.RefreshTokenUseCase) *AuthHandler {
-	return &AuthHandler{registerUC, loginUC, refreshTokenUC}
+func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCase.LoginUseCase, refreshTokenUC *authUseCase.RefreshTokenUseCase, logoutUseCase *authUseCase.LogoutUseCase) *AuthHandler {
+	return &AuthHandler{registerUC, loginUC, refreshTokenUC, logoutUseCase}
 }
 
 // Register godoc
@@ -54,7 +55,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body		dto.LoginRequest	true	"Thông tin đăng nhập"
+//	@Param			request	body		dto.LoginRequest true	"Thông tin đăng nhập"
 //	@Success		201		{object}	response.Response{data=dto.LoginResponse}
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
@@ -106,3 +107,49 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	response.ResponseSuccess(w, http.StatusCreated, tokenReponse)
 }
+
+// Logout godoc
+//
+//	@Summary		Logout
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Success		200		{object}	response.Response{dto.MesssageResponse}
+//	@Failure		400		{object}	response.Response
+//	@Failure		500		{object}	response.Response
+//	@Router			/auth/logout [post]
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("user_id")
+	if err := h.logoutUseCase.Excute(userID.(string)); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response.ResponseSuccess(w, http.StatusCreated, dto.MesssageResponse{
+		Message: "logout successfully",
+	})
+}
+
+// // Me godoc
+// //
+// //	@Summary		Get user info
+// //	@Tags			Auth
+// //	@Accept			json
+// //	@Produce		json
+// //	@Security		BearerAuth
+// //	@Success		201		{object}	response.Response{data=dto.TokenResponse}
+// //	@Failure		400		{object}	response.Response
+// //	@Failure		500		{object}	response.Response
+// //	@Router			/auth/me [get]
+// func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+// 	userID := r.Context().Value("user_id")
+
+// 	user, err := h.userUseCase.Excute(userID.(string))
+// 	if err != nil {
+// 		response.ResponseError(w, http.StatusInternalServerError, err.Error())
+// 		return
+// 	}
+
+// 	response.ResponseSuccess(w, http.StatusCreated, user)
+// }

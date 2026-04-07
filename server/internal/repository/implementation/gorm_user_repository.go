@@ -21,6 +21,7 @@ func (r *GormUserRepository) CreateUser(user *entity.User) error {
 		DisplayName:  user.Name,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
+		IsActive:     user.IsActive,
 		Currency:     user.Currency,
 		CreatedAt:    user.CreatedAt,
 	}
@@ -45,6 +46,25 @@ func (r *GormUserRepository) FindUserByEmail(email string) (*entity.User, error)
 		Currency:     user.Currency,
 		Email:        user.Email,
 		AvatarUrl:    user.AvatarUrl,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
+	}, nil
+}
+
+func (r *GormUserRepository) FindUserById(id string) (*entity.User, error) {
+	var user model.User
+	if err := r.db.Where("id = ?", id).Where("is_active = ?", true).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &entity.User{
+		ID:           user.ID,
+		Name:         user.DisplayName,
+		PasswordHash: user.PasswordHash,
+		Currency:     user.Currency,
+		Email:        user.Email,
+		AvatarUrl:    user.AvatarUrl,
+		IsActive:     user.IsActive,
 		CreatedAt:    user.CreatedAt,
 		UpdatedAt:    user.UpdatedAt,
 	}, nil

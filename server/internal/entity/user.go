@@ -15,17 +15,19 @@ type User struct {
 	PasswordHash string
 	AvatarUrl    string
 	Currency     string
+	IsActive     bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
 
-func NewUser(id, name, email, currency string, avatarUrl string) (*User, error) {
+func NewUser(id, name, email, currency, avatarUrl string, isActive bool) (*User, error) {
 	user := &User{
 		ID:        id,
 		Name:      name,
 		Email:     email,
 		Currency:  currency,
 		AvatarUrl: avatarUrl,
+		IsActive:  isActive,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

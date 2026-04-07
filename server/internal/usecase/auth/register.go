@@ -18,7 +18,7 @@ func NewRegisterUseCase(userRep repository.UserRepository) *RegisterUseCase {
 }
 
 func (u *RegisterUseCase) Excute(input dto.RegisterRequest) error {
-	userEntity, err := entity.NewUser(uuid.NewString(), input.Name, input.Email, "VND", "")
+	userEntity, err := entity.NewUser(uuid.NewString(), input.Name, input.Email, "VND", "", true)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,7 @@ func AuthMiddleware(tokenService *security.TokenService) func(http.Handler) http
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				response.ResponseError(w, http.StatusUnauthorized, "missing authorization header")
+				return
 			}
 
 			parts := strings.Split(authHeader, " ")
@@ -38,7 +39,7 @@ func AuthMiddleware(tokenService *security.TokenService) func(http.Handler) http
 
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, "user_id", userId)
-			r.WithContext(ctx)
+			r = r.WithContext(ctx)
 
 			h.ServeHTTP(w, r)
 		})
