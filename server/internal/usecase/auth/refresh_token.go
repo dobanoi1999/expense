@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"expense/internal/domain"
 	dto "expense/internal/dto/auth"
 	"expense/internal/repository"
 	security "expense/pkg/scurity"
@@ -20,21 +21,21 @@ func (uc *RefreshTokenUseCase) Excute(request dto.RefreshTokenRequest) (dto.Toke
 	var tokenResponse dto.TokenResponse
 	claims, err := uc.tokenService.VerifyToken(request.RefreshToken)
 	if err != nil {
-		return tokenResponse, errors.New("invalid refresh token")
+		return tokenResponse, domain.NewInternalError(errors.New("invalid refresh token"))
 	}
 
 	userID, ok := claims["user_id"].(string)
 	if !ok {
-		return tokenResponse, errors.New("invalid token claims")
+		return tokenResponse, domain.NewInternalError(errors.New("invalid token claims"))
 	}
 	dbToken, err := uc.refreshTokenRepository.FindByToken(request.RefreshToken)
 
 	if err != nil {
-		return tokenResponse, errors.New("refresh token not found")
+		return tokenResponse, domain.NewNotFoundError("refresh token not found")
 	}
 
 	if !dbToken.IsValid() {
-		return tokenResponse, errors.New("refresh token is invalid or expired")
+		return tokenResponse, domain.NewInternalError(errors.New("refresh token is invalid or expired"))
 	}
 
 	newAccessToken, err := uc.tokenService.GenerateToken(userID)

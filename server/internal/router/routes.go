@@ -39,14 +39,16 @@ func setupAuthRoutes(mux *mux.Router, db *gorm.DB, tokenService *security.TokenS
 func setupUserRoutes(mux *mux.Router, db *gorm.DB, tokenService *security.TokenService) {
 	userRepo := implementation.NewGormUserImplement(db)
 
-	userUC := userUseCase.NewProfileUseCase(userRepo)
+	profileUserUC := userUseCase.NewProfileUseCase(userRepo)
+	updateUserUC := userUseCase.NewUpdateUserUseCase(userRepo)
 
-	userHandler := handler.NewUserHandler(userUC)
+	userHandler := handler.NewUserHandler(profileUserUC, updateUserUC)
 
 	authRouter := mux.PathPrefix("/api/users").Subrouter()
 	authMiddleware := middleware.AuthMiddleware(tokenService)
 	authRouter.Use(authMiddleware)
 	authRouter.HandleFunc("/me", userHandler.GetProfile).Methods(http.MethodGet)
+	authRouter.HandleFunc("/me", userHandler.UpdateUser).Methods(http.MethodPut)
 }
 
 func SetupAllRoutes(mux *mux.Router, db *gorm.DB, tokenService *security.TokenService) {

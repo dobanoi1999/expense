@@ -69,3 +69,30 @@ func (r *GormUserRepository) FindUserById(id string) (*entity.User, error) {
 		UpdatedAt:    user.UpdatedAt,
 	}, nil
 }
+
+func (r *GormUserRepository) UpdateUser(userId string, userData *entity.User) (*entity.User, error) {
+	userDb := model.User{
+		ID:          userData.ID,
+		DisplayName: userData.Name,
+		AvatarUrl:   userData.AvatarUrl,
+		Currency:    userData.Currency,
+		Email:       userData.Email,
+		IsActive:    userData.IsActive,
+	}
+
+	if err := r.db.Updates(&userDb).Error; err != nil {
+		return nil, err
+	}
+
+	return &entity.User{
+		ID:           userDb.ID,
+		Name:         userDb.DisplayName,
+		PasswordHash: userDb.PasswordHash,
+		Currency:     userDb.Currency,
+		Email:        userDb.Email,
+		AvatarUrl:    userDb.AvatarUrl,
+		IsActive:     userDb.IsActive,
+		CreatedAt:    userDb.CreatedAt,
+		UpdatedAt:    userDb.UpdatedAt,
+	}, nil
+}

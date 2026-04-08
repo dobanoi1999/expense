@@ -2,12 +2,13 @@ package response
 
 import (
 	"encoding/json"
+	"expense/internal/domain"
 	"net/http"
 )
 
 type Response struct {
-	Data  any    `json:"data,omitempty"`
-	Error string `json:"error,omitempty"`
+	Data  any `json:"data,omitempty"`
+	Error any `json:"error,omitempty"`
 }
 
 func ResponseSuccess(w http.ResponseWriter, status int, payload any) {
@@ -20,12 +21,23 @@ func ResponseSuccess(w http.ResponseWriter, status int, payload any) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func ResponseError(w http.ResponseWriter, status int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+func HandleError(err error) (int, string) {
+	switch e := err.(type) {
+	case *domain.AppError:
+		return e.Code, e.Message
+	default:
+		return http.StatusInternalServerError, "Internal server error"
+	}
+}
+
+func ResponseError(w http.ResponseWriter, status int, err error) {
+	code, msg := HandleError(err)
 
 	response := Response{
-		Error: message,
+		Error: msg,
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
 }

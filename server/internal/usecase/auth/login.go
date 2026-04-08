@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"errors"
+	"expense/internal/domain"
 	dto "expense/internal/dto/auth"
 	"expense/internal/entity"
 	"expense/internal/repository"
@@ -24,13 +24,14 @@ func NewLoginUseCase(userRepo repository.UserRepository, refreshTokenRepo reposi
 func (u *LoginUseCase) Excute(loginRequest dto.LoginRequest) (dto.UserResponse, dto.TokenResponse, error) {
 	var userResponse dto.UserResponse
 	var TokenResponse dto.TokenResponse
+
 	user, err := u.userRepo.FindUserByEmail(loginRequest.Email)
 	if err != nil {
-		return userResponse, TokenResponse, errors.New("invalid email or passowrd")
+		return userResponse, TokenResponse, domain.NewAuthenticationError("email or password is not valid")
 	}
 
 	if err := user.ComparePassword(loginRequest.Password); err != nil {
-		return userResponse, TokenResponse, errors.New("invalid email or passowrd")
+		return userResponse, TokenResponse, domain.NewAuthenticationError("email or password is not valid")
 	}
 
 	token, err := u.tokenService.GenerateToken(user.ID)

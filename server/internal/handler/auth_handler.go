@@ -5,6 +5,7 @@ import (
 	dto "expense/internal/dto/auth"
 	authUseCase "expense/internal/usecase/auth"
 	"expense/pkg/response"
+	customValidator "expense/pkg/validator"
 	"net/http"
 )
 
@@ -27,24 +28,24 @@ func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCas
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.RegisterRequest	true	"Thông tin đăng ký"
-//	@Success		201		{object}	response.Response{data=dto.MesssageResponse}
+//	@Success		201		{object}	response.Response{data=dto.MessageResponse}
 //	@Failure		400		{object}	response.Response
 //	@Failure		500		{object}	response.Response
 //	@Router			/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	if err := h.registerUC.Excute(input); err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	response.ResponseSuccess(w, http.StatusCreated, dto.MesssageResponse{
-		Message: "user registed sucessfully",
+	response.ResponseSuccess(w, http.StatusCreated, dto.MessageResponse{
+		Message: "user registed successfully",
 	})
 
 }
@@ -63,13 +64,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var input dto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := customValidator.ValidateStruct(input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	userResponse, tokenResponse, err := h.loginUC.Excute(input)
 	if err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -92,20 +98,25 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500		{object}	response.Response
 //	@Router			/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
-	var request dto.RefreshTokenRequest
+	var input dto.RefreshTokenRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	tokenReponse, err := h.refreshTokenUC.Excute(request)
+	if err := customValidator.ValidateStruct(input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenResponse, err := h.refreshTokenUC.Excute(input)
 	if err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	response.ResponseSuccess(w, http.StatusCreated, tokenReponse)
+	response.ResponseSuccess(w, http.StatusCreated, tokenResponse)
 }
 
 // Logout godoc
@@ -122,34 +133,11 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("user_id")
 	if err := h.logoutUseCase.Excute(userID.(string)); err != nil {
-		response.ResponseError(w, http.StatusBadRequest, err.Error())
+		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	response.ResponseSuccess(w, http.StatusCreated, dto.MesssageResponse{
+	response.ResponseSuccess(w, http.StatusCreated, dto.MessageResponse{
 		Message: "logout successfully",
 	})
 }
-
-// // Me godoc
-// //
-// //	@Summary		Get user info
-// //	@Tags			Auth
-// //	@Accept			json
-// //	@Produce		json
-// //	@Security		BearerAuth
-// //	@Success		201		{object}	response.Response{data=dto.TokenResponse}
-// //	@Failure		400		{object}	response.Response
-// //	@Failure		500		{object}	response.Response
-// //	@Router			/auth/me [get]
-// func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
-// 	userID := r.Context().Value("user_id")
-
-// 	user, err := h.userUseCase.Excute(userID.(string))
-// 	if err != nil {
-// 		response.ResponseError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-
-// 	response.ResponseSuccess(w, http.StatusCreated, user)
-// }
