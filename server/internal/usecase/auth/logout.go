@@ -15,7 +15,7 @@ func NewLogoutUseCase(refreshRepo repository.RefreshTokenRepository) *LogoutUseC
 	return &LogoutUseCase{refreshRepo}
 }
 
-func (u *LogoutUseCase) Excute(userID string) error {
+func (u *LogoutUseCase) Execute(userID string) error {
 	token, err := u.refreshRepo.FindTokenByUserID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

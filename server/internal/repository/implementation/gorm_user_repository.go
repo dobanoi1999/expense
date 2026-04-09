@@ -96,3 +96,11 @@ func (r *GormUserRepository) UpdateUser(userId string, userData *entity.User) (*
 		UpdatedAt:    userDb.UpdatedAt,
 	}, nil
 }
+
+func (r *GormUserRepository) UpdateAvatar(userId string, avatarUrl string) error {
+	if err := r.db.Model(&model.User{}).Where("id = ?", userId).Update("avatar_url", avatarUrl).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

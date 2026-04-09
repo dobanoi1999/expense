@@ -39,7 +39,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.registerUC.Excute(input); err != nil {
+	if err := h.registerUC.Execute(input); err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -73,7 +73,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userResponse, tokenResponse, err := h.loginUC.Excute(input)
+	userResponse, tokenResponse, err := h.loginUC.Execute(input)
 	if err != nil {
 		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
@@ -110,7 +110,7 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenResponse, err := h.refreshTokenUC.Excute(input)
+	tokenResponse, err := h.refreshTokenUC.Execute(input)
 	if err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
@@ -132,7 +132,7 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 //	@Router			/auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("user_id")
-	if err := h.logoutUseCase.Excute(userID.(string)); err != nil {
+	if err := h.logoutUseCase.Execute(userID.(string)); err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}

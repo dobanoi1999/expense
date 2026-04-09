@@ -14,7 +14,7 @@ func NewProfileUseCase(userRepo repository.UserRepository) *ProfileUseCase {
 	return &ProfileUseCase{userRepo}
 }
 
-func (u *ProfileUseCase) Excute(userID string) (dto.UserResponse, error) {
+func (u *ProfileUseCase) Execute(userID string) (dto.UserResponse, error) {
 	var userResponse dto.UserResponse
 	user, err := u.userRepo.FindUserById(userID)
 	if err != nil {

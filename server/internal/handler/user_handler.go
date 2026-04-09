@@ -11,12 +11,13 @@ import (
 )
 
 type UserHandler struct {
-	profileUserUC *userUseCase.ProfileUseCase
-	updateUserUC  *userUseCase.UpdateUserUseCase
+	profileUserUC  *userUseCase.ProfileUseCase
+	updateUserUC   *userUseCase.UpdateUserUseCase
+	updateAvatarUC *userUseCase.UpdateAvatarUseCase
 }
 
-func NewUserHandler(profileUserUC *userUseCase.ProfileUseCase, updateUserUC *userUseCase.UpdateUserUseCase) *UserHandler {
-	return &UserHandler{profileUserUC, updateUserUC}
+func NewUserHandler(profileUserUC *userUseCase.ProfileUseCase, updateUserUC *userUseCase.UpdateUserUseCase, updateAvatarUC *userUseCase.UpdateAvatarUseCase) *UserHandler {
+	return &UserHandler{profileUserUC, updateUserUC, updateAvatarUC}
 }
 
 // Me godoc
@@ -37,7 +38,7 @@ func (h UserHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.profileUserUC.Excute(userID.(string))
+	user, err := h.profileUserUC.Execute(userID.(string))
 	if err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
@@ -76,11 +77,52 @@ func (h UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.updateUserUC.Excute(userID.(string), input)
+	user, err := h.updateUserUC.Execute(userID.(string), input)
 	if err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	response.ResponseSuccess(w, http.StatusOK, user)
+}
+
+// Update godoc
+//
+//	@Summary		Update user avatar
+//	@Tags			Users
+//	@Accept			json
+//	@Produce		json
+//	@Security		BearerAuth
+//	@Param			request	body		dto.UpdateAvatarRequest true	"link anh đại diện"
+//	@Success		201		{object}	response.Response{data=dto.MessageResponse}
+//	@Failure		400		{object}	response.Response
+//	@Failure		500		{object}	response.Response
+//	@Router			/users/me/avatar [put]
+func (h UserHandler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	userID := r.Context().Value("user_id")
+	if _, oke := userID.(string); !oke {
+		response.ResponseError(w, http.StatusBadRequest, errors.New("can not format user id"))
+		return
+	}
+
+	var input dto.UpdateAvatarRequest
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := customValidator.ValidateStruct(input); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	err := h.updateAvatarUC.Execute(userID.(string), input)
+	if err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	response.ResponseSuccess(w, http.StatusOK, dto.MessageResponse{
+		Message: "avatar updated",
+	})
 }

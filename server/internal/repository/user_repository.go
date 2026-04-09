@@ -7,4 +7,5 @@ type UserRepository interface {
 	FindUserByEmail(email string) (*entity.User, error)
 	FindUserById(id string) (*entity.User, error)
 	UpdateUser(userId string, userData *entity.User) (*entity.User, error)
+	UpdateAvatar(userId string, avatarUrl string) error
 }

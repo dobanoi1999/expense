@@ -13,7 +13,7 @@ func NewUpdateUserUseCase(userRepo repository.UserRepository) *UpdateUserUseCase
 	return &UpdateUserUseCase{userRepo}
 }
 
-func (u *UpdateUserUseCase) Excute(userId string, userRequest dto.UpdateUserRequest) (dto.UserResponse, error) {
+func (u *UpdateUserUseCase) Execute(userId string, userRequest dto.UpdateUserRequest) (dto.UserResponse, error) {
 	var userResponse dto.UserResponse
 
 	userEntity, err := u.userRepo.FindUserById(userId)

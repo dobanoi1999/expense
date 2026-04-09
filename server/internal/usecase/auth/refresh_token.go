@@ -17,7 +17,7 @@ func NewRefreshTokenUseCase(tokenService *security.TokenService, refreshTokenRep
 	return &RefreshTokenUseCase{tokenService, refreshTokenRepository}
 }
 
-func (uc *RefreshTokenUseCase) Excute(request dto.RefreshTokenRequest) (dto.TokenResponse, error) {
+func (uc *RefreshTokenUseCase) Execute(request dto.RefreshTokenRequest) (dto.TokenResponse, error) {
 	var tokenResponse dto.TokenResponse
 	claims, err := uc.tokenService.VerifyToken(request.RefreshToken)
 	if err != nil {

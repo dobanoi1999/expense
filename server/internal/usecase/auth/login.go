@@ -21,7 +21,7 @@ func NewLoginUseCase(userRepo repository.UserRepository, refreshTokenRepo reposi
 	return &LoginUseCase{userRepo, refreshTokenRepo, tokenService}
 }
 
-func (u *LoginUseCase) Excute(loginRequest dto.LoginRequest) (dto.UserResponse, dto.TokenResponse, error) {
+func (u *LoginUseCase) Execute(loginRequest dto.LoginRequest) (dto.UserResponse, dto.TokenResponse, error) {
 	var userResponse dto.UserResponse
 	var TokenResponse dto.TokenResponse
 

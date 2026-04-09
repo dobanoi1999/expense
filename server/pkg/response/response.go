@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"expense/internal/domain"
+	"fmt"
 	"net/http"
 )
 
@@ -31,6 +32,7 @@ func HandleError(err error) (int, string) {
 }
 
 func ResponseError(w http.ResponseWriter, status int, err error) {
+	fmt.Printf("%+v", err)
 	code, msg := HandleError(err)
 
 	response := Response{

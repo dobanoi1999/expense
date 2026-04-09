@@ -15,3 +15,7 @@ type UpdateUserRequest struct {
 	Name     string `json:"name" validate:"required,min=2" example:"Nguyen Van A"`
 	Currency string `json:"currency" validate:"oneof=VND USD" example:"VND"`
 }
+
+type UpdateAvatarRequest struct {
+	AvatarUrl string `json:"avatar_url" validate:"required,url" example:"https://example.png"`
+}
