@@ -1,20 +1,83 @@
+import 'package:client/core/network/dio_client.dart';
+import 'package:client/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:client/features/auth/domain/usecases/login_usecase.dart';
+import 'package:client/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:client/features/auth/presentation/pages/login_page.dart';
+import 'package:client/features/home/presentation/pages/home_page.dart';
+import 'package:client/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const MainApp());
+  final dio = DioClient.create(
+    baseUrl: 'http://localhost:9000',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+  );
+
+  runApp(MainApp(dio: dio));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final DioClient dio;
+  const MainApp({super.key, required this.dio});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (_) => AuthRepositoryImpl(dio: dio)),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => AuthBloc(
+              loginUseCase: LoginUseCase(
+                authRepository: context.read<AuthRepositoryImpl>(),
+              ),
+            ),
+          ),
+        ],
+        child: AppView(),
       ),
+    );
+  }
+}
+
+class AppView extends StatefulWidget {
+  const AppView({super.key});
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  NavigatorState get _navigator => _navigatorKey.currentState!;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: _navigatorKey,
+      builder: (context, child) {
+        return BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) => previous.status != current.status,
+          listener: (context, state) {
+            switch (state.status) {
+              case AuthStatus.authenticated:
+                _navigator.pushAndRemoveUntil(HomePage.route(), (_) => false);
+                break;
+              case AuthStatus.unauthenticated:
+                _navigator.pushAndRemoveUntil(LoginPage.route(), (_) => false);
+                break;
+              default:
+                break;
+            }
+          },
+          child: child,
+        );
+      },
+      onGenerateRoute: (_) => SplashPage.route(),
     );
   }
 }
