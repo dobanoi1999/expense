@@ -1,8 +1,9 @@
 import 'package:client/core/network/dio_client.dart';
 import 'package:client/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:client/features/auth/domain/usecases/login_usecase.dart';
 import 'package:client/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:client/features/auth/presentation/pages/login_page.dart';
+import 'package:client/features/login/presentation/pages/login_page.dart';
 import 'package:client/features/home/presentation/pages/home_page.dart';
 import 'package:client/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -25,19 +26,22 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        RepositoryProvider(create: (_) => AuthRepositoryImpl(dio: dio)),
+        RepositoryProvider<AuthRepository>(
+          create: (_) => AuthRepositoryImpl(dio: dio),
+          dispose: (repository) => repository.dispose(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => AuthBloc(
+            create: (context) => AuthBloc(
               loginUseCase: LoginUseCase(
-                authRepository: context.read<AuthRepositoryImpl>(),
+                authRepository: context.read<AuthRepository>(),
               ),
-            ),
+            )..add(AuthSubscriptionRequested()),
           ),
         ],
-        child: AppView(),
+        child: const AppView(),
       ),
     );
   }

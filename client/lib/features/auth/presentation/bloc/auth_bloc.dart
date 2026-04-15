@@ -9,8 +9,23 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
-  AuthBloc({required this.loginUseCase})
-    : super(AuthState(status: AuthStatus.unknown)) {
-    on((event, emit) {});
+  AuthBloc({required this.loginUseCase}) : super(AuthState.unknown()) {
+    on<AuthSubscriptionRequested>(
+      (event, emit) => emit.onEach(
+        loginUseCase.authRepository.status,
+        onData: (status) {
+          switch (status) {
+            case AuthStatus.authenticated:
+              User user = User(email: "xxxx");
+              return emit(AuthState.authenticated(user));
+            case AuthStatus.unauthenticated:
+              return emit(AuthState.unauthenticated());
+            case AuthStatus.unknown:
+              return emit(AuthState.unknown());
+          }
+        },
+        onError: addError,
+      ),
+    );
   }
 }

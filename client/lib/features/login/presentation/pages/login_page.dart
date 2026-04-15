@@ -1,5 +1,6 @@
-import 'package:client/features/auth/presentation/widgets/login_form.dart';
+import 'package:client/features/login/presentation/widgets/login_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -9,6 +10,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const LoginForm();
+    return BlocProvider(create: (_) => )
   }
 }
