@@ -1,3 +1,5 @@
+import 'package:client/features/auth/domain/repositories/auth_repository.dart';
+import 'package:client/features/login/presentation/bloc/login_bloc.dart';
 import 'package:client/features/login/presentation/widgets/login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +12,15 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => )
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: BlocProvider(
+          create: (_) =>
+              LoginBloc(authRepository: context.read<AuthRepository>()),
+          child: const LoginForm(),
+        ),
+      ),
+    );
   }
 }
