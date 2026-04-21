@@ -1,4 +1,5 @@
 import 'package:client/core/network/dio_client.dart';
+import 'package:client/core/styles/themes.dart';
 import 'package:client/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:client/features/auth/domain/usecases/login_usecase.dart';
@@ -62,6 +63,8 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
       navigatorKey: _navigatorKey,
       builder: (context, child) {
         return BlocListener<AuthBloc, AuthState>(
