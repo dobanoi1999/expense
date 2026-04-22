@@ -1,3 +1,4 @@
+import 'package:client/core/fomz/email.dart';
 import 'package:client/core/styles/styles.dart';
 import 'package:client/features/login/presentation/bloc/login_bloc.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +26,7 @@ class InputEmail extends StatelessWidget {
             context.read<LoginBloc>().add(LoginEmailChanged(value));
           },
           obscureText: false,
-          decoration: InputDecoration(
-            errorText: displayErr != null ? 'Email is valid' : null,
-          ),
+          decoration: InputDecoration(errorText: displayErr?.text()),
         ),
       ],
     );

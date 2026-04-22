@@ -1,3 +1,4 @@
+import 'package:client/core/network/exceptions/network_exception.dart';
 import 'package:client/core/network/interceptors/logging_interceptor.dart';
 import 'package:client/core/network/interceptors/retry_interceptor.dart';
 import 'package:dio/dio.dart';
@@ -26,30 +27,55 @@ class DioClient {
     return DioClient._(dio);
   }
 
-  Future<Response> get(
+  Future<ApiResponse<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     Options? options,
   }) async {
-    return await dio.get(
-      path,
-      queryParameters: queryParameters,
-      options: options,
-    );
+    try {
+      final response = await dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      return ApiResponse.success(response.data as T);
+    } on DioException catch (e) {
+      final networkException = NetworkException.fromDioException(e);
+      return ApiResponse.failure(networkException);
+    } catch (e) {
+      return ApiResponse.failure(
+        NetworkException(message: e.toString(), code: 'UNKNOWN_ERROR'),
+      );
+    }
   }
 
-  Future<Response> post(
+  Future<ApiResponse<T>> post<T>(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
+    T Function(dynamic)? fromJson,
   }) async {
-    return await dio.post(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-    );
+    try {
+      final response = await dio.post(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      );
+      if (fromJson != null) {
+        final parsedData = fromJson(response.data);
+        return ApiResponse.success(parsedData);
+      }
+      return ApiResponse.success(response.data as T);
+    } on DioException catch (e) {
+      final networkException = NetworkException.fromDioException(e);
+      return ApiResponse.failure(networkException);
+    } catch (e) {
+      return ApiResponse.failure(
+        NetworkException(message: e.toString(), code: 'UNKNOWN_ERROR'),
+      );
+    }
   }
 
   Future<Response> put(

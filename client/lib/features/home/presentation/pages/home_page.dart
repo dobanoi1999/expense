@@ -13,6 +13,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final email =
         context.select((AuthBloc bloc) => bloc.state.user?.email) ?? 'empty';
-    return Text("$email");
+    return Text(email);
   }
 }

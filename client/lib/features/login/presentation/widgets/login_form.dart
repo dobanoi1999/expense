@@ -13,8 +13,9 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginStage>(
+      listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        // print(state.status);
+        print(state.status);
       },
       child: Align(
         alignment: Alignment(0, -1 / 3),

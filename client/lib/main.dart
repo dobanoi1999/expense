@@ -12,7 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   final dio = DioClient.create(
-    baseUrl: 'http://localhost:9000',
+    enableLogging: true,
+    baseUrl: 'http://localhost:8080/',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
   );
 
