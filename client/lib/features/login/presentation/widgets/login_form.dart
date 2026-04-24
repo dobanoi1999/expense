@@ -1,11 +1,12 @@
+import 'package:client/core/fomz/email.dart';
+import 'package:client/core/fomz/password.dart';
 import 'package:client/core/styles/colors.dart';
 import 'package:client/core/styles/styles.dart';
+import 'package:client/core/widgets/input_widget.dart';
 import 'package:client/features/login/presentation/bloc/login_bloc.dart';
-import 'package:client/features/login/presentation/widgets/input_email.dart';
-import 'package:client/features/login/presentation/widgets/input_password.dart';
-import 'package:client/features/login/presentation/widgets/login_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -43,8 +44,8 @@ class LoginForm extends StatelessWidget {
                   spacing: 12,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    InputEmail(),
-                    InputPassword(),
+                    _InputEmail(),
+                    _InputLogin(),
                     TextButton(
                       style: TextButton.styleFrom(
                         alignment: AlignmentGeometry.centerEnd,
@@ -53,7 +54,7 @@ class LoginForm extends StatelessWidget {
                       onPressed: () {},
                       child: Text('Forgot password?'),
                     ),
-                    LoginButton(),
+                    _LoginButton(),
                   ],
                 ),
               ),
@@ -73,6 +74,78 @@ class LoginForm extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _InputEmail extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<LoginBloc, LoginStage, Email>(
+      selector: (state) => state.email,
+      builder: (_, email) {
+        return InputWidget(
+          label: 'Email',
+          key: const Key('formLogin_emailInput'),
+          errText: email.displayError?.text(),
+          onChanged: (value) {
+            context.read<LoginBloc>().add(LoginEmailChanged(value));
+          },
+        );
+      },
+    );
+  }
+}
+
+class _InputLogin extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<LoginBloc, LoginStage, Password>(
+      selector: (state) => state.password,
+      builder: (_, password) {
+        return InputWidget(
+          label: 'Password',
+          key: const Key('formLogin_passwordInput'),
+          errText: password.displayError?.text(),
+          obscureText: true,
+          onChanged: (value) {
+            context.read<LoginBloc>().add(LoginPasswordChanged(value));
+          },
+        );
+      },
+    );
+  }
+}
+
+class _LoginButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocSelector<LoginBloc, LoginStage, bool>(
+      selector: (state) => state.status.isInProgress,
+      builder: (context, isProcess) {
+        return TextButton(
+          onPressed: () {
+            if (!isProcess) {
+              context.read<LoginBloc>().add(const LoginSubmitted());
+            }
+          },
+          style: TextButton.styleFrom(
+            backgroundColor: isProcess
+                ? MyColors.primary.withValues(alpha: 0.3)
+                : MyColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            minimumSize: Size(200, 56),
+          ),
+          child: isProcess
+              ? const CircularProgressIndicator()
+              : Text(
+                  'Sign in',
+                  style: TextStyle(color: MyColors.primaryForeground),
+                ),
+        );
+      },
     );
   }
 }

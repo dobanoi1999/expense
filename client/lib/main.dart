@@ -1,5 +1,8 @@
+import 'package:client/core/middleware/app_bloc_observer.dart';
 import 'package:client/core/network/dio_client.dart';
+import 'package:client/core/services/snackbar_service.dart';
 import 'package:client/core/styles/themes.dart';
+import 'package:client/core/ui/effect/app_effect_listener.dart';
 import 'package:client/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:client/features/auth/domain/usecases/login_usecase.dart';
@@ -11,11 +14,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final dio = DioClient.create(
     enableLogging: true,
     baseUrl: 'http://localhost:8080/',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
   );
+
+  Bloc.observer = AppBlocObserver();
 
   runApp(MainApp(dio: dio));
 }
@@ -67,6 +74,7 @@ class _AppViewState extends State<AppView> {
       theme: lightTheme,
       darkTheme: darkTheme,
       navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: SnackBarService.messengerKey,
       builder: (context, child) {
         return BlocListener<AuthBloc, AuthState>(
           listenWhen: (previous, current) => previous.status != current.status,
@@ -82,7 +90,7 @@ class _AppViewState extends State<AppView> {
                 break;
             }
           },
-          child: child,
+          child: AppEffectListener(child: child!),
         );
       },
       onGenerateRoute: (_) => SplashPage.route(),

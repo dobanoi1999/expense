@@ -1,3 +1,4 @@
+import 'package:client/core/error/bloc_error.dart';
 import 'package:client/core/fomz/email.dart';
 import 'package:client/core/fomz/password.dart';
 import 'package:client/features/auth/domain/repositories/auth_repository.dart';
@@ -60,6 +61,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginStage> {
         emit(state.copyWith(status: FormzSubmissionStatus.success));
       } else {
         emit(state.copyWith(status: FormzSubmissionStatus.failure));
+        throw BlocError(response.error?.message ?? 'Error unknow');
       }
     }
   }
