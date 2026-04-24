@@ -6,4 +6,9 @@ abstract class AuthRepository {
   Stream<AuthStatus> get status;
   void dispose();
   Future<ApiResponse<UserModel>> login(String email, String password);
+  Future<ApiResponse<String>> register(
+    String name,
+    String email,
+    String password,
+  );
 }

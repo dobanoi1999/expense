@@ -23,3 +23,14 @@ const kInputLabelLight = TextStyle(
   color: MyColors.mutedForeground,
   fontSize: FontSizes.body2,
 );
+
+const kRegisterTitleLight = TextStyle(
+  color: MyColors.foreground,
+  fontSize: FontSizes.heading1,
+  fontWeight: FontWeights.extrabold,
+);
+
+const kRegisterDescLight = TextStyle(
+  color: MyColors.mutedForeground,
+  fontSize: FontSizes.body2,
+);

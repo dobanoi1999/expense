@@ -31,5 +31,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<ApiResponse<String>> register(
+    String name,
+    String email,
+    String password,
+  ) async {
+    return await dio.post<String>(
+      'api/auth/register',
+      data: {'name': name, 'email': email, 'password': password},
+      fromJson: (json) => json['data']['message'],
+    );
+  }
+
+  @override
   void dispose() => _controller.close();
 }
