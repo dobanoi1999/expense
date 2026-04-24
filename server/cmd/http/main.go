@@ -5,12 +5,13 @@ import (
 	_ "expense/docs"
 	"expense/internal/router"
 	"expense/pkg/database"
-	security "expense/pkg/scurity"
+	"expense/pkg/security"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
@@ -39,8 +40,8 @@ func main() {
 
 	database.ConnectDatabase(cfg)
 	defer func() {
-		pgsqlDB, _ := database.DB.DB()
-		pgsqlDB.Close()
+		db, _ := database.DB.DB()
+		db.Close()
 	}()
 
 	tokenService := security.NewTokenService(cfg.JwtSecret)
@@ -50,11 +51,12 @@ func main() {
 
 	router.SetupAllRoutes(mainRouter, database.DB, tokenService)
 
+	handler := cors.Default().Handler(mainRouter)
+
 	addr := fmt.Sprintf(":%v", cfg.ServerPort)
 	log.Printf("🚀 Server starting on %s", addr)
 
-	if err := http.ListenAndServe(addr, mainRouter); err != nil {
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
-
 }

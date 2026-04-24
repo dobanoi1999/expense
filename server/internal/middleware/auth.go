@@ -4,7 +4,7 @@ import (
 	"context"
 	"expense/internal/domain"
 	"expense/pkg/response"
-	security "expense/pkg/scurity"
+	"expense/pkg/security"
 	"net/http"
 	"strings"
 )
