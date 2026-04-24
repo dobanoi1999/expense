@@ -6,7 +6,7 @@ import (
 	"expense/internal/repository/implementation"
 	authUseCase "expense/internal/usecase/auth"
 	userUseCase "expense/internal/usecase/user"
-	security "expense/pkg/scurity"
+	"expense/pkg/security"
 	"net/http"
 
 	"github.com/gorilla/mux"

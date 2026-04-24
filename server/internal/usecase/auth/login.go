@@ -5,7 +5,7 @@ import (
 	dto "expense/internal/dto/auth"
 	"expense/internal/entity"
 	"expense/internal/repository"
-	security "expense/pkg/scurity"
+	"expense/pkg/security"
 	"time"
 
 	"github.com/google/uuid"

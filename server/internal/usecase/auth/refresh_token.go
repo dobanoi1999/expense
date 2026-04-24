@@ -5,7 +5,7 @@ import (
 	"expense/internal/domain"
 	dto "expense/internal/dto/auth"
 	"expense/internal/repository"
-	security "expense/pkg/scurity"
+	"expense/pkg/security"
 )
 
 type RefreshTokenUseCase struct {
