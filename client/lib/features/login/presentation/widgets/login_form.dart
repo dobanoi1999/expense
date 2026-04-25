@@ -14,71 +14,65 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
-        print(state.status);
-      },
-      child: Align(
-        alignment: Alignment(0, -1 / 3),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Welcome Back!', style: kLoginTitleLight),
-            const Padding(padding: EdgeInsets.all(5)),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 250),
-              child: Text(
-                'Sign in to continue your financial management journey with 6 Jars system.',
-                style: kLoginDescLight,
-                textAlign: TextAlign.center,
-              ),
+    return Align(
+      alignment: Alignment(0, -1 / 3),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Welcome Back!', style: kLoginTitleLight),
+          const Padding(padding: EdgeInsets.all(5)),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 250),
+            child: Text(
+              'Sign in to continue your financial management journey with 6 Jars system.',
+              style: kLoginDescLight,
+              textAlign: TextAlign.center,
             ),
-            const Padding(padding: EdgeInsets.all(20)),
-            Card(
-              child: Padding(
-                padding: EdgeInsetsGeometry.symmetric(
-                  vertical: 24,
-                  horizontal: 12,
-                ),
-                child: Column(
-                  spacing: 12,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _InputEmail(),
-                    _InputLogin(),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        alignment: AlignmentGeometry.centerEnd,
-                        overlayColor: MyColors.card,
-                      ),
-                      onPressed: () {},
-                      child: Text('Forgot password?'),
+          ),
+          const Padding(padding: EdgeInsets.all(20)),
+          Card(
+            child: Padding(
+              padding: EdgeInsetsGeometry.symmetric(
+                vertical: 24,
+                horizontal: 12,
+              ),
+              child: Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _InputEmail(),
+                  _InputLogin(),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      alignment: AlignmentGeometry.centerEnd,
+                      overlayColor: MyColors.card,
                     ),
-                    _LoginButton(),
-                  ],
-                ),
+                    onPressed: () {},
+                    child: Text('Forgot password?'),
+                  ),
+                  _LoginButton(),
+                ],
               ),
             ),
-            const Padding(padding: EdgeInsets.all(12)),
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(RegisterPage.route());
-              },
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: "Don't have an account? ",
-                      style: kLoginDescLight,
-                    ),
-                    TextSpan(text: 'Register now', style: kTextRegisterLight),
-                  ],
-                ),
+          ),
+          const Padding(padding: EdgeInsets.all(12)),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(RegisterPage.route());
+            },
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  const TextSpan(
+                    text: "Don't have an account? ",
+                    style: kLoginDescLight,
+                  ),
+                  TextSpan(text: 'Register now', style: kTextRegisterLight),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -10,7 +10,6 @@ class SnackBarService {
     required SnackBarType type,
     Duration duration = const Duration(seconds: 4),
   }) {
-    print("snakcbar show ${message}");
     messengerKey.currentState?.hideCurrentSnackBar();
     messengerKey.currentState?.showSnackBar(
       SnackBar(

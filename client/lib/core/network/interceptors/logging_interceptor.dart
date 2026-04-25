@@ -6,7 +6,6 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('object');
     if (kDebugMode) {
       debugPrint(
         '═══════════════════════════════════════════════════════════════',

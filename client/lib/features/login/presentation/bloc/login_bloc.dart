@@ -58,10 +58,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       emit(state.copyWith(status: FormzSubmissionStatus.success));
       if (response.isSuccess) {
+        await authRepository.saveToken(
+          response.data!.token,
+          response.data!.refreshToken,
+        );
         emit(state.copyWith(status: FormzSubmissionStatus.success));
       } else {
         emit(state.copyWith(status: FormzSubmissionStatus.failure));
-        throw BlocError(response.error?.message ?? 'Error unknow');
+        throw BlocError(response.error?.message ?? 'Error unknown');
       }
     }
   }

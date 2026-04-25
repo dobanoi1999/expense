@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 class RetryInterceptor extends Interceptor {
   final Dio dio;
@@ -17,7 +18,7 @@ class RetryInterceptor extends Interceptor {
       final retryCount = err.requestOptions.extra['retryCount'] as int;
       if (retryCount < maxRetries) {
         err.requestOptions.extra['retryCount'] = retryCount + 1;
-        print('Retrying request... Attempt ${retryCount + 1}/$maxRetries');
+        debugPrint('Retrying request... Attempt ${retryCount + 1}/$maxRetries');
         await Future.delayed(delayDuration);
         try {
           final response = await dio.fetch(err.requestOptions);
