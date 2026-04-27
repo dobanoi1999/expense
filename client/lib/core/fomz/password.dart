@@ -18,7 +18,7 @@ extension PasswordValidationErrorX on PasswordValidationError {
   String text() {
     switch (this) {
       case PasswordValidationError.min:
-        return 'Password must be at least 8 characters';
+        return 'Password must be at least 6 characters';
       case PasswordValidationError.empty:
         return 'Please enter a password';
     }

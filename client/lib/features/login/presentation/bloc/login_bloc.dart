@@ -9,15 +9,15 @@ import 'package:formz/formz.dart';
 part 'login_event.dart';
 part 'login_state.dart';
 
-class LoginBloc extends Bloc<LoginEvent, LoginStage> {
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthRepository authRepository;
-  LoginBloc({required this.authRepository}) : super(LoginStage()) {
+  LoginBloc({required this.authRepository}) : super(LoginState()) {
     on<LoginEmailChanged>(_onLoginEmailChanged);
     on<LoginPasswordChanged>(_onLoginPasswordChanged);
     on<LoginSubmitted>(_onLoginSubmitted);
   }
 
-  void _onLoginEmailChanged(LoginEmailChanged event, Emitter<LoginStage> emit) {
+  void _onLoginEmailChanged(LoginEmailChanged event, Emitter<LoginState> emit) {
     final email = Email.dirty(event.email);
 
     emit(
@@ -30,7 +30,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginStage> {
 
   void _onLoginPasswordChanged(
     LoginPasswordChanged event,
-    Emitter<LoginStage> emit,
+    Emitter<LoginState> emit,
   ) {
     final password = Password.dirty(event.password);
 
@@ -42,7 +42,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginStage> {
     );
   }
 
-  void _onLoginSubmitted(LoginSubmitted event, Emitter<LoginStage> emit) async {
+  void _onLoginSubmitted(LoginSubmitted event, Emitter<LoginState> emit) async {
     final password = Password.dirty(state.password.value);
     final email = Email.dirty(state.email.value);
 
@@ -58,10 +58,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginStage> {
 
       emit(state.copyWith(status: FormzSubmissionStatus.success));
       if (response.isSuccess) {
+        await authRepository.saveToken(
+          response.data!.token,
+          response.data!.refreshToken,
+        );
         emit(state.copyWith(status: FormzSubmissionStatus.success));
       } else {
         emit(state.copyWith(status: FormzSubmissionStatus.failure));
-        throw BlocError(response.error?.message ?? 'Error unknow');
+        throw BlocError(response.error?.message ?? 'Error unknown');
       }
     }
   }

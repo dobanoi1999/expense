@@ -1,3 +1,4 @@
+import 'package:client/core/data/datasources/local/auth_local_datasource.dart';
 import 'package:client/core/middleware/app_bloc_observer.dart';
 import 'package:client/core/network/dio_client.dart';
 import 'package:client/core/services/snackbar_service.dart';
@@ -16,7 +17,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final localDataSource = AuthLocalDataSourceImpl();
+
   final dio = DioClient.create(
+    local: localDataSource,
     enableLogging: true,
     baseUrl: 'http://localhost:8080/',
     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -24,19 +28,20 @@ void main() {
 
   Bloc.observer = AppBlocObserver();
 
-  runApp(MainApp(dio: dio));
+  runApp(MainApp(dio: dio, local: localDataSource));
 }
 
 class MainApp extends StatelessWidget {
   final DioClient dio;
-  const MainApp({super.key, required this.dio});
+  final AuthLocalDataSource local;
+  const MainApp({super.key, required this.dio, required this.local});
 
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AuthRepository>(
-          create: (_) => AuthRepositoryImpl(dio: dio),
+          create: (_) => AuthRepositoryImpl(dio: dio, local: local),
           dispose: (repository) => repository.dispose(),
         ),
       ],

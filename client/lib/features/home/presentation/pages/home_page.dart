@@ -13,6 +13,11 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final email =
         context.select((AuthBloc bloc) => bloc.state.user?.email) ?? 'empty';
-    return Text(email);
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Align(alignment: Alignment(0, -1 / 3), child: Text(email)),
+      ),
+    );
   }
 }
