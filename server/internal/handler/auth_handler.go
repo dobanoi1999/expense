@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"expense/internal/domain"
 	dto "expense/internal/dto/auth"
 	authUseCase "expense/internal/usecase/auth"
 	"expense/pkg/response"
@@ -35,6 +36,12 @@ func NewAuthHandler(registerUC *authUseCase.RegisterUseCase, loginUC *authUseCas
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+
+		response.ResponseError(w, http.StatusBadRequest, domain.NewValidationError(err.Error()))
+		return
+	}
+
+	if err := customValidator.ValidateStruct(input); err != nil {
 		response.ResponseError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -45,7 +52,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.ResponseSuccess(w, http.StatusCreated, dto.MessageResponse{
-		Message: "user registed successfully",
+		Message: "user registered successfully",
 	})
 
 }
