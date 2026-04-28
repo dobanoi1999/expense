@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"errors"
+	"expense/internal/domain"
 	dto "expense/internal/dto/auth"
 	"expense/internal/entity"
 	"expense/internal/repository"
@@ -28,7 +28,7 @@ func (u *RegisterUseCase) Execute(input dto.RegisterRequest) error {
 
 	user, err := u.userRep.FindUserByEmail(input.Email)
 	if err == nil && user != nil {
-		return errors.New("email already exits")
+		return domain.NewValidationError("email already exits")
 	}
 	if err := u.userRep.CreateUser(userEntity); err != nil {
 		return err

@@ -1,0 +1,104 @@
+import 'package:client/core/data/datasources/local/auth_local_datasource.dart';
+import 'package:client/core/middleware/app_bloc_observer.dart';
+import 'package:client/core/network/dio_client.dart';
+import 'package:client/core/services/snackbar_service.dart';
+import 'package:client/core/styles/themes.dart';
+import 'package:client/core/ui/effect/app_effect_listener.dart';
+import 'package:client/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:client/features/auth/domain/repositories/auth_repository.dart';
+import 'package:client/features/auth/domain/usecases/login_usecase.dart';
+import 'package:client/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:client/features/login/presentation/pages/login_page.dart';
+import 'package:client/features/home/presentation/pages/home_page.dart';
+import 'package:client/features/splash/presentation/pages/splash_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final localDataSource = AuthLocalDataSourceImpl();
+
+  final dio = DioClient.create(
+    local: localDataSource,
+    enableLogging: true,
+    baseUrl: 'http://localhost:8080/',
+    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+  );
+
+  Bloc.observer = AppBlocObserver();
+
+  runApp(MainApp(dio: dio, local: localDataSource));
+}
+
+class MainApp extends StatelessWidget {
+  final DioClient dio;
+  final AuthLocalDataSource local;
+  const MainApp({super.key, required this.dio, required this.local});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<AuthRepository>(
+          create: (_) => AuthRepositoryImpl(dio: dio, local: local),
+          dispose: (repository) => repository.dispose(),
+        ),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthBloc(
+              loginUseCase: LoginUseCase(
+                authRepository: context.read<AuthRepository>(),
+              ),
+            )..add(AuthSubscriptionRequested()),
+          ),
+        ],
+        child: const AppView(),
+      ),
+    );
+  }
+}
+
+class AppView extends StatefulWidget {
+  const AppView({super.key});
+
+  @override
+  State<AppView> createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  NavigatorState get _navigator => _navigatorKey.currentState!;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: SnackBarService.messengerKey,
+      builder: (context, child) {
+        return BlocListener<AuthBloc, AuthState>(
+          listenWhen: (previous, current) => previous.status != current.status,
+          listener: (context, state) {
+            switch (state.status) {
+              case AuthStatus.authenticated:
+                _navigator.pushAndRemoveUntil(HomePage.route(), (_) => false);
+                break;
+              case AuthStatus.unauthenticated:
+                _navigator.pushAndRemoveUntil(LoginPage.route(), (_) => false);
+                break;
+              default:
+                break;
+            }
+          },
+          child: AppEffectListener(child: child!),
+        );
+      },
+      onGenerateRoute: (_) => SplashPage.route(),
+    );
+  }
+}

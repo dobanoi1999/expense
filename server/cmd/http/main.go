@@ -51,7 +51,16 @@ func main() {
 
 	router.SetupAllRoutes(mainRouter, database.DB, tokenService)
 
-	handler := cors.Default().Handler(mainRouter)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // frontend
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
+		ExposedHeaders:   []string{"Content-Length"},
+		AllowCredentials: true,
+		Debug:            true,
+	})
+
+	handler := c.Handler(mainRouter)
 
 	addr := fmt.Sprintf(":%v", cfg.ServerPort)
 	log.Printf("🚀 Server starting on %s", addr)
